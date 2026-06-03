@@ -1,0 +1,75 @@
+import java.util.*;
+
+public class CycleDetection {
+
+    static Map<String, List<String>> graph =
+            new HashMap<>();
+
+    static Map<String, Integer> color =
+            new HashMap<>();
+
+    static boolean dfs(String node) {
+
+        color.put(node, 1); // GREY
+
+        for (String nbr : graph.get(node)) {
+
+            if (color.get(nbr) == 1) {
+                System.out.println(
+                        "Cycle detected at: " + nbr);
+                return true;
+            }
+
+            if (color.get(nbr) == 0) {
+                if (dfs(nbr))
+                    return true;
+            }
+        }
+
+        color.put(node, 2); // BLACK
+        return false;
+    }
+
+    public static void main(String[] args) {
+
+        graph.put("auth",
+                Arrays.asList("ledger"));
+
+        graph.put("payments",
+                Arrays.asList("auth", "fraud"));
+
+        graph.put("kyc",
+                Arrays.asList("auth"));
+
+        graph.put("ledger",
+                Arrays.asList("fraud"));
+
+        graph.put("fraud",
+                Arrays.asList("notify", "ledger"));
+
+        graph.put("notify",
+                Arrays.asList("gateway"));
+
+        graph.put("admin-ui",
+                Arrays.asList("payments", "kyc"));
+
+        graph.put("customer-ui",
+                Arrays.asList("payments"));
+
+        graph.put("gateway",
+                Arrays.asList("admin-ui",
+                              "customer-ui"));
+
+        for (String v : graph.keySet())
+            color.put(v, 0);
+
+        for (String v : graph.keySet()) {
+            if (color.get(v) == 0) {
+                if (dfs(v))
+                    return;
+            }
+        }
+
+        System.out.println("No cycle found");
+    }
+}
