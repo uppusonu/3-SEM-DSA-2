@@ -1,0 +1,83 @@
+import java.util.*;
+
+class Frame {
+    String node;
+    boolean processed;
+
+    Frame(String n, boolean p) {
+        node = n;
+        processed = p;
+    }
+}
+
+public class IterativeTopoSort {
+
+    static List<String> topoSortIterative(
+            Map<String, List<String>> adj,
+            String start) {
+
+        Map<String, Integer> color = new HashMap<>();
+
+        for (String v : adj.keySet())
+            color.put(v, 0); // WHITE
+
+        List<String> order = new ArrayList<>();
+        Deque<Frame> stack = new ArrayDeque<>();
+
+        stack.push(new Frame(start, false));
+
+        while (!stack.isEmpty()) {
+
+            Frame f = stack.pop();
+
+            if (f.processed) {
+                color.put(f.node, 2); // BLACK
+                order.add(f.node);
+                continue;
+            }
+
+            if (color.get(f.node) != 0)
+                continue;
+
+            color.put(f.node, 1); // GREY
+
+            stack.push(new Frame(f.node, true));
+
+            List<String> nbrs =
+                    new ArrayList<>(adj.getOrDefault(
+                            f.node,
+                            Collections.emptyList()));
+
+            Collections.sort(nbrs,
+                    Collections.reverseOrder());
+
+            for (String n : nbrs) {
+                if (color.getOrDefault(n, 0) == 0)
+                    stack.push(new Frame(n, false));
+            }
+        }
+
+        Collections.reverse(order);
+        return order;
+    }
+
+    public static void main(String[] args) {
+
+        Map<String, List<String>> adj = new HashMap<>();
+
+        adj.put("app", Arrays.asList("core"));
+        adj.put("core", Arrays.asList("logging", "util"));
+        adj.put("logging", Arrays.asList("filehandler"));
+        adj.put("util", Arrays.asList("math", "serial"));
+        adj.put("math", Arrays.asList("bigint"));
+        adj.put("filehandler", Arrays.asList("log4j"));
+        adj.put("serial", new ArrayList<>());
+        adj.put("bigint", new ArrayList<>());
+        adj.put("log4j", new ArrayList<>());
+
+        List<String> result =
+                topoSortIterative(adj, "app");
+
+        System.out.println(result);
+    }
+}
